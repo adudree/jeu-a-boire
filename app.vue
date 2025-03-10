@@ -1,6 +1,8 @@
+<script setup lang="ts">
+import '~/assets/css/normalize.css';
+</script>
 <template>
 	<div>
-		<!-- Markup shared across all pages, ex: NavBar -->
 		<NuxtPage />
 	</div>
 </template>
