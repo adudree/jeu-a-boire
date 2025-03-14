@@ -15,6 +15,9 @@ async function onStartGame() {
     await navigateTo('/game');
 }
 
+onBeforeMount(() => {
+    playersList.value = gameStore.getPlayersList;
+})
 </script>
 <template>
 <div class="container">
@@ -29,12 +32,12 @@ async function onStartGame() {
         </NuxtLink>
     </div>
 
-    <input type="text" v-model="nameInput" @keyup.enter="onKeyUpEnter(nameInput)" />
+    <input v-model="nameInput" type="text" @keyup.enter="onKeyUpEnter(nameInput)">
 
     {{ playersList.length }} players
 
     <div class="list-container">
-        <div v-for="player in playersList" class="player">
+        <div v-for="(player, index) in playersList" :key="index" class="player">
             {{ player.name }}
         </div>
     </div>
