@@ -3,6 +3,7 @@ import type { IPlayer } from '~/types/player';
 
 const gameStore = useGameStore();
 const playersList = ref<IPlayer[]>(gameStore.getPlayersList);
+const backgroundColor = ref<string>('');
 
 const currentRound = ref<number>(0);
 const questionsList = reactive<string[]>([
@@ -21,6 +22,7 @@ onMounted(() => {
 function nextQuestion() {
     if (currentRound.value < questionsList.length - 1) {
         setTarget();
+        backgroundColor.value = generateLightColor();
         currentRound.value++;
     } else {
         endGame();
@@ -46,13 +48,27 @@ async function endGame() {
 
 onMounted(() => {
     document.addEventListener('click', nextQuestion);
-})
+    backgroundColor.value = generateLightColor();
+});
 onUnmounted(() => {
     document.removeEventListener('click', nextQuestion);
-})
+});
+
+function generateLightColor(): string {
+    let r, g, b;
+    
+    do {
+        r = Math.floor(Math.random() * 128 + 128); // 128 à 255
+        g = Math.floor(Math.random() * 128 + 128);
+        b = Math.floor(Math.random() * 128 + 128);
+    } while (Math.abs(r - g) < 30 && Math.abs(r - b) < 30 && Math.abs(g - b) < 30); // Évite les gris
+
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
 </script>
 <template>
-    <div>
+    <NuxtLayout :background-color="backgroundColor">
         <NuxtLink to="/">
             <button>Back to home</button>            
         </NuxtLink>
@@ -61,7 +77,7 @@ onUnmounted(() => {
         <div>Players list : <span v-for="(player, index) in playersList" :key="index" class="playerTag"> {{ player.name }} </span></div>
         <div>{{ target }}</div>
         <div>{{ parsedQuestion }}</div>
-    </div>
+    </NuxtLayout>
 </template>
 <style scoped lang="scss">
 .playerTag {

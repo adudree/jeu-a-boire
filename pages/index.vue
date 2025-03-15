@@ -17,13 +17,14 @@ async function onStartGame() {
 function deletePlayer(name: string) {
     playersList.value = playersList.value.filter(p => p.name !== name);
 }
-onBeforeMount(() => {
+onMounted(() => {
     playersList.value = gameStore.getPlayersList;
 })
+
 </script>
 <template>
-<div class="container">
-    <div class="content">
+    <NuxtLayout background-color="#7e3a86">
+
         <div class="player-input-container">
             <input v-model="nameInput" type="text" placeholder="Nouveau joueur..." @keyup.enter="onKeyUpEnter(nameInput)">
             <div class="players-count">{{ playersList.length }}  {{ playersList.length !== 1 ? 'joueurs' : 'joueur' }}</div>
@@ -31,9 +32,9 @@ onBeforeMount(() => {
 
         <div class="list-container">
             <div v-for="(player, index) in playersList" :key="index" class="player">
-                <div>
+                <p>
                     {{ player.name }}
-                </div>
+                </p>
                 <div>
                     <button value="Delete" @click="deletePlayer(player.name)">Supprimer</button>
                 </div>
@@ -42,31 +43,11 @@ onBeforeMount(() => {
 
         <div class="start-game-container">
             <button @click="onStartGame">C'est parti !</button>
-        </div>
-    </div>
+        </div>        
+    </NuxtLayout>
 
-
-
-</div>
 </template>
 <style scoped lang="scss">
-.container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background: #7e3a86;
-    .content {
-        width: 600px;
-        height: 80vh !important;
-        margin: auto;
-        padding: 5px;
-        // background: #c09ac4;
-        display: flex;
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
-    }
-}
 .player-input-container {
     display: flex;
     justify-content: space-between;
@@ -100,9 +81,12 @@ onBeforeMount(() => {
         align-items: center;
         background: #c09ac4;
         margin: 2px;
-        padding: 5px;
+        padding: 5px 10px;
         min-height: 40px;
         font-size: 1rem;
+        p::first-letter {
+            text-transform: capitalize;
+        }
     }
 }
 .start-game-container {
