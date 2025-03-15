@@ -77,6 +77,7 @@ onBeforeMount(() => {
         flex: 1;
         height: 100%;
         border: none;
+        padding: 0 10px;
     }
     .players-count {
         width: 100px;
