@@ -4,17 +4,18 @@ import type { IPlayer } from '~/types/player';
 export const useGameStore = defineStore('game', {
     state: () => ({
         playersList: [] as IPlayer[],
+        totalRoundsNumber: 3,
+        currentRound: 0
     }),
     getters: {
-        getPlayersList: (state) => {
-            return state.playersList;
-        },
-        getPlayer: (state) => {
-            return (playerId: string) => state.playersList.find(player => player.name === playerId);
-        },
-        getPlayersCount: (state) => state.playersList.length
+        getPlayersList: (state) => state.playersList,
+        getPlayer: (state) => (playerId: string) => state.playersList.find(player => player.name === playerId),
+        getPlayersCount: (state) => state.playersList.length,
+        getTotalRoundsNumber: (state) => state.totalRoundsNumber,
+        getCurrentRound: (state) => state.currentRound
     },
     actions: {
+        /* --- PLAYERS --- */
         addPlayer(player: IPlayer) {
             this.playersList.push(player);
         },
@@ -26,6 +27,14 @@ export const useGameStore = defineStore('game', {
         },
         resetPlayersList() {
             this.playersList = [];
+        },
+        /* --- ROUNDS --- */
+        nextRound() {
+            this.currentRound++;
+        },
+        /* --- GAME --- */
+        resetGame() {
+            this.currentRound = 0;
         }
     }
 });
