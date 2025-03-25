@@ -1,5 +1,6 @@
+import type { EQuestionType } from "~/enums/questions";
+
 export declare interface IQuestion {
     question: string,
-    hasMainTarget: boolean,
-    canComeBack: boolean
+    question_type: EQuestionType
 }

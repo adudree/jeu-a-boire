@@ -1,82 +1,63 @@
 <script setup lang="ts">
-import type { IPlayer } from '~/types/player';
 
 const gameStore = useGameStore();
-const playersList = ref<IPlayer[]>(gameStore.getPlayersList);
-const backgroundColor = ref<string>('');
+const playersList = computed(() => gameStore.getPlayersList)
+const backgroundColor = ref<string>(generateLightColor());
 
-const currentRound = ref<number>(0);
-const questionsList = reactive<string[]>([
-    'Qui vit dans un ananas sous la mer ? {name} {name} {name} {name}',
-    'Qui compte bien y faire carrière ? {name} {name} {name} {name}',
-    'Si vous avez un souhait, qui faut-il appeler ? {name} {name} {name} {name}',
-    'Qui n\'a pas peur des gros méchant poissons ? {name} {name} {name} {name}'
-]);
+const currentRound = computed(() => gameStore.getCurrentRound);
+const questionsList = await getSomeQuestions(gameStore.getTotalRoundsNumber);
+
 const currentQuestion = computed(() => questionsList[currentRound.value]);
 const target = ref<string>('');
 
-onMounted(() => {
-    setTarget();
-})
+const isLastRound = computed(() => currentRound.value === questionsList.length - 1);
+const buttonText = computed(() => isLastRound.value ? 'Finir le jeu' : 'Suivant');
 
-function nextQuestion() {
-    if (currentRound.value < questionsList.length - 1) {
-        setTarget();
+async function nextQuestion() {
+    if (!isLastRound.value) {
+        await setTarget();
         backgroundColor.value = generateLightColor();
-        currentRound.value++;
+        gameStore.nextRound();
     } else {
-        endGame();
+        await endGame();
     }
 }
 
 const parsedQuestion = computed(() => {
     const availableNames = [...playersList.value.map(p => p.name)];
-    return currentQuestion.value.replace(/{name}/g, () => {
+    return currentQuestion.value.question.replace(/{name}/g, () => {
         if (availableNames.length === 0) return "???";
         return availableNames.splice(Math.floor(Math.random() * availableNames.length), 1)[0];
     });
 });
-function setTarget() {
+async function setTarget() {
     target.value = getRandomPlayer();
+    if (!target.value) {
+        await endGame();
+    }
 }
 function getRandomPlayer() {
-    return playersList.value[Math.floor(Math.random() * playersList.value.length)].name;
+    return playersList.value[Math.floor(Math.random() * playersList.value.length)]?.name;
 }
 async function endGame() {
+    gameStore.resetGame();
     await navigateTo('/');
 }
 
-onMounted(() => {
-    document.addEventListener('click', nextQuestion);
+onMounted(async () => {
+    await setTarget();
     backgroundColor.value = generateLightColor();
 });
-onUnmounted(() => {
-    document.removeEventListener('click', nextQuestion);
-});
 
-function generateLightColor(): string {
-    let r, g, b;
-    
-    do {
-        r = Math.floor(Math.random() * 128 + 128); // 128 à 255
-        g = Math.floor(Math.random() * 128 + 128);
-        b = Math.floor(Math.random() * 128 + 128);
-    } while (Math.abs(r - g) < 30 && Math.abs(r - b) < 30 && Math.abs(g - b) < 30); // Évite les gris
 
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-}
 
 </script>
 <template>
     <NuxtLayout :background-color="backgroundColor">
-        <NuxtLink to="/">
-            <button>Back to home</button>            
-        </NuxtLink>
-        <h2>Welcome to the game</h2>
         <div>Round {{ currentRound + 1 }} / {{ questionsList.length }}</div>
-        <div>Players list : <span v-for="(player, index) in playersList" :key="index" class="playerTag"> {{ player.name }} </span></div>
-        <div>{{ target }}</div>
+        <h1>{{ target }}</h1>
         <div>{{ parsedQuestion }}</div>
+        <button @click="nextQuestion">{{ buttonText }}</button>
     </NuxtLayout>
 </template>
 <style scoped lang="scss">

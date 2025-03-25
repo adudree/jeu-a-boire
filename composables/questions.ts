@@ -3,5 +3,5 @@ export async function getSomeQuestions(limit: number) {
         method: 'get',
         query: { limit }
     });
-    return data.value?.questions ?? []
+    return data.value?.questions ?? [];
 };
