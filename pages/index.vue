@@ -6,16 +6,20 @@ const nameInput = ref<string>('');
 const gameStore = useGameStore();
 
 function onKeyUpEnter(newName: string) {
-    playersList.value.unshift({name: newName});
-    nameInput.value = "";
+    if (!playersList.value.find(p => p.name === newName)) {
+        playersList.value.unshift({name: newName});
+        nameInput.value = "";
+    } else {
+        // TODO : error
+    }
 }
 
 async function onStartGame() {
     gameStore.savePlayerList(playersList.value);
     await navigateTo('/game');
 }
-function deletePlayer(name: string) {
-    playersList.value = playersList.value.filter(p => p.name !== name);
+function deletePlayer(index: number) {
+    playersList.value.splice(index, 1);
 }
 onMounted(() => {
     playersList.value = gameStore.getPlayersList;
@@ -36,13 +40,13 @@ onMounted(() => {
                     {{ player.name }}
                 </p>
                 <div>
-                    <button value="Delete" @click="deletePlayer(player.name)">Supprimer</button>
+                    <button value="Delete" @click="deletePlayer(index)">Supprimer</button>
                 </div>
             </div>
         </div>
 
-        <div class="start-game-container">
-            <button @click="onStartGame">C'est parti !</button>
+        <div :class="{'start-game-container': true, 'disabled-btn': !playersList.length}">
+            <button @click="onStartGame" :disabled="!playersList.length">C'est parti !</button>
         </div>        
     </NuxtLayout>
 
@@ -90,6 +94,15 @@ onMounted(() => {
     }
 }
 .start-game-container {
+    &.disabled-btn {
+        button {
+            background: #4c4c4c;
+            &:hover {
+                background: #4c4c4c;
+                cursor: not-allowed;
+            }
+        }
+    }
     button {
         background: #522357;
         &:hover {
