@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient(event);
   const { data } = await supabase
     .from('random_questions')
-    .select('question, question_type')
+    .select(`
+      question,
+      question_type ( uid, target )
+    `)
     .limit(limit);
   const questions: IQuestion[] = data ? data.map(objectKeysToCamel) : [];
   return { questions };

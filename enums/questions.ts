@@ -6,3 +6,9 @@ export enum EQuestionType {
     yourTurnToJudge = 'yourTurnToJudge',
     doYouPrefer = 'doYouPrefer'
 }
+
+export enum ETargetNumber {
+    one = "one",
+    two = "two",
+    all = "all"
+}
